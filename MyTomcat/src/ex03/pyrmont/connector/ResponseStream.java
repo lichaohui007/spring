@@ -49,6 +49,6 @@ public class ResponseStream extends ServletOutputStream{
 	public void close() throws IOException{
 		if(closed)
 				throw new IOException("responseStream.close.closed");
-		response.f
+		//response.f
 	}
 }
