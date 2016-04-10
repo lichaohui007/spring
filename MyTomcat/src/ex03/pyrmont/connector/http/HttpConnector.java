@@ -39,7 +39,7 @@ public class HttpConnector implements Runnable{
 				e.printStackTrace();
 				continue;
 			}
-			Http
+			//Http
 		}
 	}
 
