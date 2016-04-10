@@ -9,27 +9,18 @@ import java.net.Socket;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
-//import javax.servlet.AsyncContext;
-//import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 
+import org.apache.catalina.util.Enumerator;
 import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
 
@@ -49,33 +40,31 @@ public class HttpRequest implements HttpServletRequest{
 	private int serverPort;
 	private Socket socket;
 	private boolean requestedSessionCookie;
-	private String requestSessionId;
+	private String requestedSessionId;
 	private boolean requestedSessionURL;
 	
 	protected HashMap attributes = new HashMap();
 	protected String authorization = null;
 	protected String contextPath = "";
 	protected ArrayList cookies = new ArrayList();
-	
 	protected static ArrayList empty = new ArrayList();
 	
-	protected SimpleDateFormat[] formats = { 
-			new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US),
-			new SimpleDateFormat("EEEEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
+	protected SimpleDateFormat[] formats = {
+			new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.US),
+			new SimpleDateFormat("EEEEEE dd-MM-yy HH:mm:ss zzz", Locale.US),
 			new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
-	}; 
+	};
 	
 	protected HashMap headers = new HashMap();
 	
 	protected ParameterMap parameters = null;
 	
 	protected boolean parsed = false;
-	
 	protected String pathInfo = null;
 	
 	protected BufferedReader reader = null;
 	
-	protected ServletInputStream stream = null;
+	protected ServletInputStream stream =  null;
 	
 	public HttpRequest(InputStream input){
 		this.input = input;
@@ -83,9 +72,8 @@ public class HttpRequest implements HttpServletRequest{
 	
 	public void addHeader(String name, String value){
 		name = name.toLowerCase();
-		//map + list
 		synchronized (headers) {
-			ArrayList values = (ArrayList)headers.get(name);
+			ArrayList values = (ArrayList) headers.get(name);
 			if(values == null){
 				values = new ArrayList();
 				headers.put(name, values);
@@ -95,27 +83,28 @@ public class HttpRequest implements HttpServletRequest{
 	}
 	
 	protected void parseParameters(){
-		if(parsed)
+		if(parsed)//对象的共享变量
 			return;
-		ParameterMap results = parameters;
+		ParameterMap results =  parameters;
 		if(results == null)
 			results = new ParameterMap();
 		results.setLocked(false);
-		String encoding = getCharacterEncoding();
+		String encoding =  getCharacterEncoding();
 		if(encoding == null)
 			encoding = "ISO-8859-1";
-		String queryString = getQueryString();
-		try{
+		String queryString =  getQueryString();
+		try {
 			RequestUtil.parseParameters(results, queryString, encoding);
-		}catch(Exception e){
-			;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		String contentType = getContentType();
 		if(contentType == null)
 			contentType = "";
-		int semicolon = contentType.indexOf(";");
-		if(semicolon >= 0){
-			contentType = contentType.substring(0,semicolon).trim();
+		int semicolon = contentType.indexOf(';');
+		if(semicolon > 0){
+			contentType = contentType.substring(0, semicolon).trim();
 		}else{
 			contentType = contentType.trim();
 		}
@@ -126,23 +115,23 @@ public class HttpRequest implements HttpServletRequest{
 				int len = 0;
 				byte[] buf = new byte[getContentLength()];
 				ServletInputStream is = getInputStream();
+				
 				while(len < max){
-					//璇诲彇max-len涓瓧鑺傜殑鏁版嵁鍒板瓧鑺傛暟缁刡yte涓紝鍒濆鍋忕Щ閲忎负len
-					int next = is.read(buf, len, max-len);
+					int next = is.read(buf, len, max - len);
 					if(next < 0){
 						break;
 					}
-					len +=next;
+					len += next;
 				}
 				is.close();
 				if(len < max){
-					throw new RuntimeException("Content length mismatch");
+					throw new RuntimeException("Content length mismathch");
 				}
-				//灏唕esults杩涜
-				RequestUtil.parseParameters(results, buf, encoding);;
+				RequestUtil.parseParameters(results, buf, encoding);
 			}catch(Exception e){
-				;
+				throw new RuntimeException("Content read fail");
 			}
+			
 		}
 		
 		results.setLocked(true);
@@ -150,13 +139,14 @@ public class HttpRequest implements HttpServletRequest{
 		parameters = results;
 	}
 	
-	public ServletInputStream createInputStream() throws IOException{
-		return (new RequestStream(this));
-	}
 	public void addCookie(Cookie cookie){
 		synchronized (cookies) {
 			cookies.add(cookie);
 		}
+	}
+	
+	public ServletInputStream createInputStream() throws IOException{
+		return (new RequestStream(this));
 	}
 	
 	public InputStream getStream(){
@@ -167,19 +157,20 @@ public class HttpRequest implements HttpServletRequest{
 		this.contentLength = length;
 	}
 	
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
+	public void setContentType(String type){
+		this.contentType = type;
 	}
 	
 	public void setInet(InetAddress inetAddress){
 		this.inetAddress = inetAddress;
 	}
 	
-	public void serContextPath(String path){
+	public void setContextPath(String path){
 		if(path == null)
 			this.contextPath = "";
 		else
 			this.contextPath = path;
+		
 	}
 	
 	public void setMethod(String method){
@@ -187,47 +178,60 @@ public class HttpRequest implements HttpServletRequest{
 	}
 	
 	public void setPathInfo(String path){
-		
 		this.pathInfo = path;
 	}
 	
-	public void setProtocol(String protocol) {
+	public void setProtocol(String protocol){
 		this.protocol = protocol;
 	}
 	
-	public void setRequestURI(String requestURI) {
+	public void setQureyString(String queryString){
+		this.queryString = queryString;
+	}
+	
+	public void setRequestURI(String requestURI){
 		this.requestURI = requestURI;
 	}
 	
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
+	public void setServerName(String name){
+		this.serverName = name;
 	}
 	
-	public void setServerPort(int serverPort) {
-		this.serverPort = serverPort;
+	public void setServerPort(int port){
+		this.serverPort = port;
 	}
-	 
 	
-	public void setSocket(Socket socket) {
+	public void setSocket(Socket socket){
 		this.socket = socket;
 	}
 	
+	public void setRequestedSessionCookie(boolean flag){
+		this.requestedSessionCookie = flag;
+	}
+	
+	public void serRequestedSessionId(String requestedSessionId){
+		this.requestedSessionId = requestedSessionId;
+	}
+	
+	public void setRequestedSessionURL(boolean flag){
+		this.requestedSessionURL = flag;
+	}
 	@Override
-	public AsyncContext getAsyncContext() {
+	public Object getAttribute(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		synchronized (attributes) {
+			return (attributes.get(name));
+		}
+		
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Enumeration getAttributeNames() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Enumeration<String> getAttributeNames() {
-		// TODO Auto-generated method stub
-		return null;
+		synchronized (attributes) {
+			return (new Enumerator(attributes.keySet()));
+		}
+		//return null;
 	}
 
 	@Override
@@ -239,44 +243,20 @@ public class HttpRequest implements HttpServletRequest{
 	@Override
 	public int getContentLength() {
 		// TODO Auto-generated method stub
-		return 0;
+		return contentLength;
 	}
 
 	@Override
 	public String getContentType() {
 		// TODO Auto-generated method stub
-		return null;
+		return contentType;
 	}
 
-	@Override
-	public DispatcherType getDispatcherType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
+	/*@Override
 	public ServletInputStream getInputStream() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public String getLocalAddr() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getLocalName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocalPort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	}*/
 
 	@Override
 	public Locale getLocale() {
@@ -285,7 +265,7 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	@Override
-	public Enumeration<Locale> getLocales() {
+	public Enumeration getLocales() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -297,13 +277,13 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	@Override
-	public Map<String, String[]> getParameterMap() {
+	public Map getParameterMap() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Enumeration<String> getParameterNames() {
+	public Enumeration getParameterNames() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -345,12 +325,6 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	@Override
-	public int getRemotePort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public RequestDispatcher getRequestDispatcher(String arg0) {
 		// TODO Auto-generated method stub
 		return null;
@@ -372,24 +346,6 @@ public class HttpRequest implements HttpServletRequest{
 	public int getServerPort() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public ServletContext getServletContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isAsyncStarted() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isAsyncSupported() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -418,25 +374,6 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	@Override
-	public AsyncContext startAsync() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean authenticate(HttpServletResponse arg0) throws IOException,
-			ServletException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public String getAuthType() {
 		// TODO Auto-generated method stub
 		return null;
@@ -451,30 +388,53 @@ public class HttpRequest implements HttpServletRequest{
 	@Override
 	public Cookie[] getCookies() {
 		// TODO Auto-generated method stub
-		return null;
+		synchronized (cookies) {
+			if(cookies.size() < 1)
+				return (null);
+			Cookie[] results = new Cookie[cookies.size()];
+			return (Cookie[]) cookies.toArray(results);
+		}
+		//return null;
 	}
 
 	@Override
-	public long getDateHeader(String arg0) {
+	public long getDateHeader(String name) {
 		// TODO Auto-generated method stub
+		String value = getHeader(name);
 		return 0;
 	}
 
 	@Override
-	public String getHeader(String arg0) {
+	public String getHeader(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		name = name.toLowerCase();
+		synchronized (headers) {
+			ArrayList values = (ArrayList) headers.get(name);
+			if(values != null)
+				return (String) values.get(0);
+			else
+				return null;
+		}
+		//return ;
 	}
 
 	@Override
-	public Enumeration<String> getHeaderNames() {
+	public Enumeration getHeaderNames() {
 		// TODO Auto-generated method stub
-		return null;
+		synchronized (headers) {
+			return (new Enumerator(headers.keySet()));
+		}
+		//return null;
 	}
 
 	@Override
-	public Enumeration<String> getHeaders(String arg0) {
+	public Enumeration getHeaders(String name) {
 		// TODO Auto-generated method stub
+		name = name.toLowerCase();
+		synchronized (headers) {
+			ArrayList values = (ArrayList) headers.get(name);
+			
+		}
 		return null;
 	}
 
@@ -486,20 +446,6 @@ public class HttpRequest implements HttpServletRequest{
 
 	@Override
 	public String getMethod() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Part getPart(String arg0) throws IOException, IllegalStateException,
-			ServletException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Part> getParts() throws IOException,
-			IllegalStateException, ServletException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -599,17 +545,5 @@ public class HttpRequest implements HttpServletRequest{
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public void login(String arg0, String arg1) throws ServletException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void logout() throws ServletException {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 }
