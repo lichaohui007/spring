@@ -1,0 +1,848 @@
+{\rtf1\ansi\ansicpg936\cocoartf1404\cocoasubrtf110
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;\f2\fnil\fcharset134 PingFangSC-Regular;
+\f3\fnil\fcharset0 Verdana;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red83\green83\blue83;\red42\green0\blue255;
+\red246\green246\blue246;\red59\green57\blue56;\red234\green240\blue245;\red204\green215\blue226;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14740\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 select sum(amount) from REFUNDREQUEST refund left join PUBLISHEDTRX pub on refund.PAYMENTID = pub.ID \
+where refund.REQUESTDATE >='2016-02-01' and refund.REQUESTDATE <'2016-03-01' and pub.target_custid =
+\f1\fs22 '10012075953'
+\f0\fs24  and pub.TRXTYPE in ('SALES','AUTHORIZE')  and pub.PAYPRODUCT in ('POS') and refund.REFUNDSTATUS in('REFUND','DONE','FAILED')\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+select sum(amount) from REFUNDREQUEST refund left join PUBLISHEDTRX pub on refund.PAYMENTID = pub.ID \
+where refund.REQUESTDATE >='2016-02-01' and refund.REQUESTDATE <'2016-03-01' and pub.target_custid = \cf0 \kerning1\expnd0\expndtw0 12075953\cf2 \expnd0\expndtw0\kerning0
+ and pub.TRXTYPE in ('SALES\'92,\'92AUTHORIZE') \'a0and pub.PAYPRODUCT in ('POS') and refund.REFUNDSTATUS in('REFUND','DONE','FAILED\'92)\'97\'97
+\f2 \'b4\'ed\'ce\'f3\'b5\'c4\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs22 \cf0 \kerning1\expnd0\expndtw0 SELECT \
+			CUSTOMER_NUMBER\
+		FROM\
+			TBL_FRONT_REFUND_ORDER\
+		WHERE\
+			REFUND_TIME between #\{start, jdbcType=TIMESTAMP\} and #\{end, jdbcType=TIMESTAMP\}\
+		AND\
+			STATUS IN ('TAX_BACKED','UN_BACKED')\
+		AND\
+			CHARGE_TYPE = #\{chargeType, jdbcType=VARCHAR\}\
+		GROUP BY\
+			CUSTOMER_NUMBER\
+\
+\
+SELECT sum(amount),customer_number FROM TBL_FRONT_REFUND_ORDER WHERE REFUND_TIME >= '2016-02-01' and REFUND_TIME < '2016-03-01' and STATUS IN ('TAX_BACKED','UN_BACKED')\
+AND CUSTOMER_NUMBER='10012075953'\
+\
+SELECT * FROM TBL_FEE_RATE_MODEL where CONSUMER_NO = '10012075953'\
+\
+\
+2
+\f2 \'b4\'fa\'b5\'c4
+\f3\fs24 \cf3 \expnd0\expndtw0\kerning0
+\
+POSCOPY\
+select NVL(count(o.id), 0) as G2_COUNT,NVL(SUM(o.trx_amount), 0) G2_AMOUNT from tbl_pos_order o where o.BUSINESS_TYPE in ('UNION_BILL_PURCHASE_PAY1','UNION_BILL_PURCHASE_PAY2','UNION_BANKTO_TRANSFER_PURCHASE') and o.ORDER_STATUS in ('SUCCESS','SETTLED') and o.ORDER_TYPE='PURCHASE' and o.CREATE_TIME between \{start,mintimestamp\} and \{end,mintimestamp\} and o.CUSTOMER_NUMBER = \{customerNumber\} with ur\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs22 \cf4 \kerning1\expnd0\expndtw0 ONLINE_ACQUIRING_UNICOM
+\f3\fs24 \cf3 \expnd0\expndtw0\kerning0
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs22 \cf0 \kerning1\expnd0\expndtw0 select \
+										o.CUSTOMER_NUMBER  customerId,\
+										coalesce(o.bank_trx_id,'') as payCustomer,\
+										rtrim(char(o.id))||'_MINI' orderNo,\
+										rtrim(char(o.id))||'_MINI'   flowNo,\
+										o.trx_amount amount,\
+										o.COMPLETE_TIME trxDate ,\
+								   		'' as frpId,\
+										o.ORDER_TYPE trxType,\
+										'MERCHANT_ACCOUNT_PAY' payProduct,\
+										''  as payWay\
+									from \
+										tbl_pos_order  o\
+									where \
+									    o.BUSINESS_TYPE in ('UNION_BILL_PURCHASE_PAY1','UNION_BILL_PURCHASE_PAY2') \
+									and \
+										o.ORDER_STATUS  in ('SUCCESS','SETTLED')\
+									and \
+										o.ORDER_TYPE='PURCHASE'\
+									and \
+										o.CREATE_TIME >= \{start,mintimestamp\}\
+									and \
+										o.CREATE_TIME  <= \{end,mintimestamp\}\
+									and \
+									    o.CUSTOMER_NUMBER = \{customerNumber\}\
+									with ur\
+\
+\
+select\
+										rtrim(char(t.ID))||'_MINI' as orderNo,\
+										rtrim(char(t.ID))||'_MINI' as flowNo,\
+										t.TRX_TIME as trxDate,\
+										o.trx_amount as amount,\
+										o.CUSTOMER_NUMBER as customerId,\
+										coalesce(o.bank_trx_id,'') as payCustomer,\
+										'' as frpId,\
+										'REFUND' trxType,\
+										rtrim(char(t.order_id))||'_MINI' as parentFlowNo,\
+										o.COMPLETE_TIME parentTrxDate ,\
+										'MERCHANT_ACCOUNT_PAY' payProduct,\
+										''  as payWay\
+									from tbl_pos_order o\
+										left join tbl_pos_payment t \
+										on o.id = t.order_id\
+									where\
+										o.BUSINESS_TYPE in ('UNION_BILL_PURCHASE_PAY1','UNION_BILL_PURCHASE_PAY2')\
+										and o.CUSTOMER_NUMBER = \{customerId\}\
+										and o.ORDER_TYPE = 'PURCHASE'\
+										and t.TRX_TIME between \{start,mintimestamp\} and \{end,mintimestamp\}\
+										and t.TRX_TYPE = 'PURCHASE_REFUND'\
+										and t.STATUS = 'SUCCESS'\
+									with ur\
+\
+POS_ACQUIRING\
+select\
+										pub.target_custid customerId,\
+										pub.requestId orderNo,\
+										pub.EXTERNALID flowNo,\
+										pub.orderAmount amount,\
+										pub.confirmOrCancel trxDate,\
+										pub.frpid frpId,\
+										pub.trxType,\
+										pub.PAYPRODUCT payProduct,\
+										pub.PAYWAY payWay\
+									from\
+										PublishedTrx pub \
+									where \
+										pub.target_custid = \{customerId\}\
+									and\
+                                        pub.TRXTYPE in ('SALES','AUTHORIZE')\
+									and \
+										pub.PAYPRODUCT in [payProducts]\
+									and\
+										pub.confirmOrCancel >= \{start,mintimestamp\}\
+									and\
+										pub.confirmOrCancel <= \{end,mintimestamp\}\
+									order by \
+										pub.confirmOrCancel with ur\
+\
+POS_ACQUIRING_REFUND\
+\pard\pardeftab720\partightenfactor0
+\cf0 select\
+										refund.REQUESTID orderNo,\
+									    refund.EXTENDID flowNo,\
+									    refund.REQUESTDATE trxDate,\
+									    refund.AMOUNT amount,\
+									    pub.TARGET_CUSTID customerId,\
+									    pub.FRPID frpId,\
+									    'REFUND' trxType,\
+									    pub.EXTERNALID parentFlowNo,\
+									    pub.confirmOrCancel parentTrxDate,\
+										pub.PAYPRODUCT payProduct,\
+										pub.PAYWAY payWay\
+									from\
+										REFUNDREQUEST refund\
+									left join\
+										PUBLISHEDTRX pub\
+									on\
+										refund.PAYMENTID = pub.ID\
+									where\
+										pub.target_custid = \{customerId\}\
+									and\
+                                        pub.TRXTYPE in ('SALES','AUTHORIZE')\
+									and \
+										pub.PAYPRODUCT in [payProducts]\
+									and\
+										refund.REFUNDSTATUS in('REFUND','DONE','FAILED')\
+									and\
+										refund.REQUESTDATE >= \{start,mintimestamp\}\
+									and\
+										refund.REQUESTDATE <= \{end,mintimestamp\} \
+									with ur\
+\pard\pardeftab720\partightenfactor0
+\cf0 \
+\
+\
+\
+\pard\pardeftab720\qc\partightenfactor0
+
+\f3\b\fs28 \cf3 \cb5 \expnd0\expndtw0\kerning0
+\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat1 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat7 \clwWidth1600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx233
+\clvertalc \clcbpat7 \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx467
+\clvertalc \clcbpat7 \clwWidth4160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx700
+\clvertalc \clcbpat7 \clwWidth7160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx934
+\clvertalc \clcbpat7 \clwWidth6740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1167
+\clvertalc \clcbpat7 \clwWidth2780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1401
+\clvertalc \clcbpat7 \clwWidth4820\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1634
+\clvertalc \clcbpat7 \clwWidth3000\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1868
+\clvertalc \clcbpat7 \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2101
+\clvertalc \clcbpat7 \clwWidth3060\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2335
+\clvertalc \clcbpat7 \clwWidth2940\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2568
+\clvertalc \clcbpat7 \clwWidth3660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2802
+\clvertalc \clcbpat7 \clwWidth2600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3035
+\clvertalc \clcbpat7 \clwWidth1700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3269
+\clvertalc \clcbpat7 \clwWidth1660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3502
+\clvertalc \clcbpat7 \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3736
+\clvertalc \clcbpat7 \clwWidth3740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3969
+\clvertalc \clcbpat7 \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4203
+\clvertalc \clcbpat7 \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4436
+\clvertalc \clcbpat7 \clwWidth1840\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4670
+\clvertalc \clcbpat7 \clwWidth1580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4903
+\clvertalc \clcbpat7 \clwWidth4560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5137
+\clvertalc \clcbpat7 \clwWidth1980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5370
+\clvertalc \clcbpat7 \clwWidth3500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5604
+\clvertalc \clcbpat7 \clwWidth3140\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5837
+\clvertalc \clcbpat7 \clwWidth4580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6071
+\clvertalc \clcbpat7 \clwWidth2020\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6304
+\clvertalc \clcbpat7 \clwWidth3520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6538
+\clvertalc \clcbpat7 \clwWidth3180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6771
+\clvertalc \clcbpat7 \clwWidth2240\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7005
+\clvertalc \clcbpat7 \clwWidth1540\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7238
+\clvertalc \clcbpat7 \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7472
+\clvertalc \clcbpat7 \clwWidth2400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7705
+\clvertalc \clcbpat7 \clwWidth4220\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7939
+\clvertalc \clcbpat7 \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8172
+\clvertalc \clcbpat7 \clwWidth3400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8406
+\clvertalc \clcbpat7 \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0\fs24 \cf6 \cb1 ID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CUSTOMER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CUSTOMER_NAME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 NODE_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 INNER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 FLOW_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 TRANSFER_FLOW_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ORDER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUND_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 OWNER_SOURCE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 BUSINESS_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CAL_FEE_CATEGORY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAY_PRODUCT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAY_WAY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 VERSION\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PRIMITIVE_PAY_PRODUCT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PRIMITIVE_PAY_WAY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 INTERFACE_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CHARGE_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 FEE_ROLE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 AMOUNT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_CAL_POLICY_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_CAL_POLICY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_BACK_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_CAL_POLICY_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_CAL_POLICY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_BACK_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 STATUS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REMARK\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CONFIRM_REFUND_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ORDER_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CAL_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CREATE_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 MARKETING_CODE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ACCOUNTING_CODE\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat1 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx233
+\clvertalc \clshdrawnil \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx467
+\clvertalc \clshdrawnil \clwWidth4160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx700
+\clvertalc \clshdrawnil \clwWidth7160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx934
+\clvertalc \clshdrawnil \clwWidth6740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1167
+\clvertalc \clshdrawnil \clwWidth2780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1401
+\clvertalc \clshdrawnil \clwWidth4820\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1634
+\clvertalc \clshdrawnil \clwWidth3000\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1868
+\clvertalc \clshdrawnil \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2101
+\clvertalc \clshdrawnil \clwWidth3060\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2335
+\clvertalc \clshdrawnil \clwWidth2940\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2568
+\clvertalc \clshdrawnil \clwWidth3660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2802
+\clvertalc \clshdrawnil \clwWidth2600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3035
+\clvertalc \clshdrawnil \clwWidth1700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3269
+\clvertalc \clshdrawnil \clwWidth1660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3502
+\clvertalc \clshdrawnil \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3736
+\clvertalc \clshdrawnil \clwWidth3740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3969
+\clvertalc \clshdrawnil \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4203
+\clvertalc \clshdrawnil \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4436
+\clvertalc \clshdrawnil \clwWidth1840\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4670
+\clvertalc \clshdrawnil \clwWidth1580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4903
+\clvertalc \clshdrawnil \clwWidth4560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5137
+\clvertalc \clshdrawnil \clwWidth1980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5370
+\clvertalc \clshdrawnil \clwWidth3500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5604
+\clvertalc \clshdrawnil \clwWidth3140\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5837
+\clvertalc \clshdrawnil \clwWidth4580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6071
+\clvertalc \clshdrawnil \clwWidth2020\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6304
+\clvertalc \clshdrawnil \clwWidth3520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6538
+\clvertalc \clshdrawnil \clwWidth3180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6771
+\clvertalc \clshdrawnil \clwWidth2240\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7005
+\clvertalc \clshdrawnil \clwWidth1540\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7238
+\clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7472
+\clvertalc \clshdrawnil \clwWidth2400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7705
+\clvertalc \clshdrawnil \clwWidth4220\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7939
+\clmgf \clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8172
+\clmrg \clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8406
+\clmrg \clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 3212440\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 10012075953\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2 \cf3 \'b1\'b1\'be\'a9\'cb\'d1\'b7\'bf\'bf\'c6\'bc\'bc\'b7\'a2\'d5\'b9\'d3\'d0\'cf\'de\'b9\'ab\'cb\'be
+\f3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1bcbcc1b-3f30-47b3-81d8-544c2c4ac5af\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2fae4e45adc848a1814e77a6b6a3a81b\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2270079359\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 868713765952152A\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1454296579825\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-01 11:16:19.825\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 MERCHANT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 POS_ACQUIRING\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 POS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UPOP_POS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 9002011\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UN_REAL_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 PAYEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1000.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 SINGLE_PERCENT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 7.80\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UN_BACKED\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:53.667\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 REFUND\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:53.5\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:52.725\cell 
+\pard\intbl\itap1\cell 
+\pard\intbl\itap1\cell \lastrow\row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat7 \clwWidth1600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx233
+\clvertalc \clcbpat7 \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx467
+\clvertalc \clcbpat7 \clwWidth4160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx700
+\clvertalc \clcbpat7 \clwWidth7160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx934
+\clvertalc \clcbpat7 \clwWidth6800\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1167
+\clvertalc \clcbpat7 \clwWidth2780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1401
+\clvertalc \clcbpat7 \clwWidth4800\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1634
+\clvertalc \clcbpat7 \clwWidth3000\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1868
+\clvertalc \clcbpat7 \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2101
+\clvertalc \clcbpat7 \clwWidth3060\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2335
+\clvertalc \clcbpat7 \clwWidth2940\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2568
+\clvertalc \clcbpat7 \clwWidth3660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2802
+\clvertalc \clcbpat7 \clwWidth2600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3035
+\clvertalc \clcbpat7 \clwWidth1700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3269
+\clvertalc \clcbpat7 \clwWidth1660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3502
+\clvertalc \clcbpat7 \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3736
+\clvertalc \clcbpat7 \clwWidth3740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3969
+\clvertalc \clcbpat7 \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4203
+\clvertalc \clcbpat7 \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4436
+\clvertalc \clcbpat7 \clwWidth1840\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4670
+\clvertalc \clcbpat7 \clwWidth1580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4903
+\clvertalc \clcbpat7 \clwWidth4560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5137
+\clvertalc \clcbpat7 \clwWidth1980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5370
+\clvertalc \clcbpat7 \clwWidth3480\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5604
+\clvertalc \clcbpat7 \clwWidth3140\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5837
+\clvertalc \clcbpat7 \clwWidth4580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6071
+\clvertalc \clcbpat7 \clwWidth2020\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6304
+\clvertalc \clcbpat7 \clwWidth3520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6538
+\clvertalc \clcbpat7 \clwWidth3180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6771
+\clvertalc \clcbpat7 \clwWidth2240\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7005
+\clvertalc \clcbpat7 \clwWidth1540\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7238
+\clvertalc \clcbpat7 \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7472
+\clvertalc \clcbpat7 \clwWidth2400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7705
+\clvertalc \clcbpat7 \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7939
+\clvertalc \clcbpat7 \clwWidth4680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8172
+\clvertalc \clcbpat7 \clwWidth3400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8406
+\clvertalc \clcbpat7 \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CUSTOMER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CUSTOMER_NAME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 NODE_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 INNER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 FLOW_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 TRANSFER_FLOW_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ORDER_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUND_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 OWNER_SOURCE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 BUSINESS_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CAL_FEE_CATEGORY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAY_PRODUCT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAY_WAY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 VERSION\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PRIMITIVE_PAY_PRODUCT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PRIMITIVE_PAY_WAY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 INTERFACE_NUMBER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CHARGE_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 FEE_ROLE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 AMOUNT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_CAL_POLICY_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_CAL_POLICY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYEE_BACK_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_CAL_POLICY_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_CAL_POLICY\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYER_BACK_FEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 STATUS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REMARK\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CONFIRM_REFUND_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ORDER_TYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CAL_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CREATE_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 MARKETING_CODE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 ACCOUNTING_CODE\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx233
+\clvertalc \clshdrawnil \clwWidth3700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx467
+\clvertalc \clshdrawnil \clwWidth4160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx700
+\clvertalc \clshdrawnil \clwWidth7160\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx934
+\clvertalc \clshdrawnil \clwWidth6800\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1167
+\clvertalc \clshdrawnil \clwWidth2780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1401
+\clvertalc \clshdrawnil \clwWidth4800\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1634
+\clvertalc \clshdrawnil \clwWidth3000\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1868
+\clvertalc \clshdrawnil \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2101
+\clvertalc \clshdrawnil \clwWidth3060\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2335
+\clvertalc \clshdrawnil \clwWidth2940\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2568
+\clvertalc \clshdrawnil \clwWidth3660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2802
+\clvertalc \clshdrawnil \clwWidth2600\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3035
+\clvertalc \clshdrawnil \clwWidth1700\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3269
+\clvertalc \clshdrawnil \clwWidth1660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3502
+\clvertalc \clshdrawnil \clwWidth4640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3736
+\clvertalc \clshdrawnil \clwWidth3740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3969
+\clvertalc \clshdrawnil \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4203
+\clvertalc \clshdrawnil \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4436
+\clvertalc \clshdrawnil \clwWidth1840\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4670
+\clvertalc \clshdrawnil \clwWidth1580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4903
+\clvertalc \clshdrawnil \clwWidth4560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5137
+\clvertalc \clshdrawnil \clwWidth1980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5370
+\clvertalc \clshdrawnil \clwWidth3480\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5604
+\clvertalc \clshdrawnil \clwWidth3140\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5837
+\clvertalc \clshdrawnil \clwWidth4580\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6071
+\clvertalc \clshdrawnil \clwWidth2020\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6304
+\clvertalc \clshdrawnil \clwWidth3520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6538
+\clvertalc \clshdrawnil \clwWidth3180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6771
+\clvertalc \clshdrawnil \clwWidth2240\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7005
+\clvertalc \clshdrawnil \clwWidth1540\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7238
+\clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7472
+\clvertalc \clshdrawnil \clwWidth2400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7705
+\clvertalc \clshdrawnil \clwWidth4660\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7939
+\clvertalc \clshdrawnil \clwWidth4680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8172
+\clmgf \clvertalc \clshdrawnil \clwWidth3400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8406
+\clmrg \clvertalc \clshdrawnil \clwWidth3400\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 3212438\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 10012075953\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f2 \cf3 \'b1\'b1\'be\'a9\'cb\'d1\'b7\'bf\'bf\'c6\'bc\'bc\'b7\'a2\'d5\'b9\'d3\'d0\'cf\'de\'b9\'ab\'cb\'be
+\f3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1bcbcc1b-3f30-47b3-81d8-544c2c4ac5af\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 09741d6fa3f445869037bb372589983a\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2270064152\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 915204277818922I\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1454295892017\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-01 11:04:52.017\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 MERCHANT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 POS_ACQUIRING\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 POS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UPOP_POS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 9002011\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UN_REAL_TIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 PAYEE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 5000.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 SINGLE_PERCENT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 39.00\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 UN_BACKED\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:53.086\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 REFUND\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:52.963\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-02 03:53:52.725\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \
+\
+\
+\
+\
+\
+\
+\cell 
+\pard\intbl\itap1\cell \lastrow\row
+\pard\pardeftab720\qc\partightenfactor0
+
+\b\fs28 \cf3 \cb5 \
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat1 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat7 \clwWidth1780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx297
+\clvertalc \clcbpat7 \clwWidth2120\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx595
+\clvertalc \clcbpat7 \clwWidth3480\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx893
+\clvertalc \clcbpat7 \clwWidth2820\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1191
+\clvertalc \clcbpat7 \clwWidth4500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1489
+\clvertalc \clcbpat7 \clwWidth1900\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1787
+\clvertalc \clcbpat7 \clwWidth1900\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2085
+\clvertalc \clcbpat7 \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2383
+\clvertalc \clcbpat7 \clwWidth1120\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2681
+\clvertalc \clcbpat7 \clwWidth1180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2979
+\clvertalc \clcbpat7 \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3277
+\clvertalc \clcbpat7 \clwWidth1100\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3575
+\clvertalc \clcbpat7 \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3873
+\clvertalc \clcbpat7 \clwWidth4520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4171
+\clvertalc \clcbpat7 \clwWidth3220\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4468
+\clvertalc \clcbpat7 \clwWidth1640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4766
+\clvertalc \clcbpat7 \clwWidth3680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5064
+\clvertalc \clcbpat7 \clwWidth2200\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5362
+\clvertalc \clcbpat7 \clwWidth2760\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5660
+\clvertalc \clcbpat7 \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5958
+\clvertalc \clcbpat7 \clwWidth2980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6256
+\clvertalc \clcbpat7 \clwWidth3500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6554
+\clvertalc \clcbpat7 \clwWidth2200\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6852
+\clvertalc \clcbpat7 \clwWidth7680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7150
+\clvertalc \clcbpat7 \clwWidth1560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7448
+\clvertalc \clcbpat7 \clwWidth2960\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7746
+\clvertalc \clcbpat7 \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8044
+\clvertalc \clcbpat7 \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8342
+\clvertalc \clcbpat7 \clwWidth1260\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrs\brdrw20\brdrcf8 \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\b0\fs24 \cf6 \cb1 ID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 OPTIMISTIC\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUNDRECORD_ID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REQUESTID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REQUESTDATE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 AMOUNT\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PROPOSER\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 OPERATORID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 MEMO\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 INDEX\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUNDSTATUS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 MODE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 HANDLETYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 LASTMODIFYDATE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUNDTYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 CLIENTIP\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUNDSOURCETYPE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 EXTENDID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 HANDLESTATUS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 HANDLETIME\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 HANDLEBATCHID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 YEEPAYOPERATORID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 PAYMENTID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 BANKORDERID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 FRPID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REFUNDINITIATE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 REVIEWUSERID\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 BANKRESULTREASON\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf6 USE3G\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trcbpat1 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1780\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx297
+\clvertalc \clshdrawnil \clwWidth2120\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx595
+\clvertalc \clshdrawnil \clwWidth3480\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx893
+\clvertalc \clshdrawnil \clwWidth2820\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1191
+\clvertalc \clshdrawnil \clwWidth4500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1489
+\clvertalc \clshdrawnil \clwWidth1900\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx1787
+\clvertalc \clshdrawnil \clwWidth1900\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2085
+\clvertalc \clshdrawnil \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2383
+\clvertalc \clshdrawnil \clwWidth1120\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2681
+\clvertalc \clshdrawnil \clwWidth1180\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx2979
+\clvertalc \clshdrawnil \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3277
+\clvertalc \clshdrawnil \clwWidth1100\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3575
+\clvertalc \clshdrawnil \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx3873
+\clvertalc \clshdrawnil \clwWidth4520\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4171
+\clvertalc \clshdrawnil \clwWidth3220\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4468
+\clvertalc \clshdrawnil \clwWidth1640\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx4766
+\clvertalc \clshdrawnil \clwWidth3680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5064
+\clvertalc \clshdrawnil \clwWidth2200\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5362
+\clvertalc \clshdrawnil \clwWidth2760\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5660
+\clvertalc \clshdrawnil \clwWidth2280\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx5958
+\clvertalc \clshdrawnil \clwWidth2980\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6256
+\clvertalc \clshdrawnil \clwWidth3500\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6554
+\clvertalc \clshdrawnil \clwWidth2200\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx6852
+\clvertalc \clshdrawnil \clwWidth7680\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7150
+\clvertalc \clshdrawnil \clwWidth1560\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7448
+\clvertalc \clshdrawnil \clwWidth2960\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx7746
+\clvertalc \clshdrawnil \clwWidth2740\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8044
+\clvertalc \clshdrawnil \clwWidth3720\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8342
+\clvertalc \clshdrawnil \clwWidth1260\clftsWidth3 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl200 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 10467636\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 9547400\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1454296579825\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-01 11:16:19.825\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1000.0000\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 REFUND\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 AUTO\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2016-02-01 11:16:19.825\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 COMMON_REFUND\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 INTERFACE\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2270079359\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 HANDLED\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 2213397301\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 229682121917112000009951670595689307\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 9002011\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 FROM_POSP\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 SUCCESS\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf3 1\
+\
+\
+\
+\cell \lastrow\row
+\pard\pardeftab720\partightenfactor0
+\cf3 2213397301  paymentid  requested = 1454296579825\
+\
+select * from PUBLISHEDTRX where id = 2213397301  2230632123\
+\
+\
+select id from PUBLISHEDTRX pub where pub.target_custid =12075953 pub.TRXTYPE in ('SALES','AUTHORIZE') \
+\
+\'97\'97\'97\'97
+\f2 \'d6\'bb\'b2\'e9\'cd\'cb\'bf\'ee\'b1\'ed\'d6\'d0\'b5\'c4\'ca\'fd\'be\'dd
+\f3 \
+select sum(amount) from REFUNDREQUEST refund\
+where refund.REQUESTDATE >='2016-02-01' and refund.REQUESTDATE <'2016-03-01'   and pub.PAYPRODUCT in ('POS') and refund.REFUNDSTATUS in('REFUND','DONE','FAILED') and refund.PAYMENTID in (select id from PUBLISHEDTRX pub where pub.target_custid =12075953 and pub.TRXTYPE in ('SALES','AUTHORIZE') )\
+\
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs22 \cf0 \kerning1\expnd0\expndtw0 SELECT * FROM TBL_POST_TRANSFER_RECORD_QUERYS
+\f3\fs24 \cf3 \expnd0\expndtw0\kerning0
+\
+}
