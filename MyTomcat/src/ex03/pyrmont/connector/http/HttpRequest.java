@@ -3,12 +3,14 @@ package ex03.pyrmont.connector.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -271,39 +273,64 @@ public class HttpRequest implements HttpServletRequest{
 	}
 
 	@Override
-	public String getParameter(String arg0) {
+	public String getParameter(String name) {
 		// TODO Auto-generated method stub
+		parseParameters();
+		String[] values = (String[]) parameters.get(name);
+		if(values != null)
+			return (values[0]);
+		else
 		return null;
 	}
 
 	@Override
 	public Map getParameterMap() {
 		// TODO Auto-generated method stub
-		return null;
+		parseParameters();
+		
+		return (this.parameters);
 	}
 
 	@Override
 	public Enumeration getParameterNames() {
 		// TODO Auto-generated method stub
-		return null;
+		parseParameters();
+		
+		return (new Enumerator(parameters.keySet()));
 	}
 
 	@Override
-	public String[] getParameterValues(String arg0) {
+	public String[] getParameterValues(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		parseParameters();
+		String[] values = (String[]) parameters.get(name);
+		if(values != null)
+			return (values);
+		else
+			return null;
 	}
 
 	@Override
 	public String getProtocol() {
 		// TODO Auto-generated method stub
-		return null;
+		return protocol;
 	}
 
 	@Override
 	public BufferedReader getReader() throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		if(stream != null)
+			throw new IllegalStateException("getInputStream has been called");
+		if(reader == null){
+			String encoding = getCharacterEncoding();
+			if(encoding == null)
+				encoding = "ISO-8859-1";
+			InputStreamReader isr = new InputStreamReader(createInputStream(), encoding);
+			reader = new BufferedReader(isr);
+		}
+			
+		
+		return (reader);
 	}
 
 	@Override
@@ -401,6 +428,17 @@ public class HttpRequest implements HttpServletRequest{
 	public long getDateHeader(String name) {
 		// TODO Auto-generated method stub
 		String value = getHeader(name);
+		if(value == null)
+			return (-1L);
+		value += " ";
+		
+		for(int i = 0; i < formats.length; i++){
+			try{
+				Date date = formats[i].parse(value);
+			}catch(Exception e){
+				
+			}
+		}
 		return 0;
 	}
 
@@ -433,21 +471,28 @@ public class HttpRequest implements HttpServletRequest{
 		name = name.toLowerCase();
 		synchronized (headers) {
 			ArrayList values = (ArrayList) headers.get(name);
-			
+			if(values != null)
+				return (new Enumerator(values));
+			else
+				return (new Enumerator(empty));
 		}
-		return null;
+		//return null;
 	}
 
 	@Override
-	public int getIntHeader(String arg0) {
+	public int getIntHeader(String name){
 		// TODO Auto-generated method stub
-		return 0;
+		String value = getHeader(name);
+		if(value == null)
+			return (-1);
+		else
+			return (Integer.parseInt(value));
 	}
 
 	@Override
 	public String getMethod() {
 		// TODO Auto-generated method stub
-		return null;
+		return method;
 	}
 
 	@Override
@@ -544,6 +589,17 @@ public class HttpRequest implements HttpServletRequest{
 	public boolean isUserInRole(String arg0) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public ServletInputStream getInputStream() throws IOException {
+		// TODO Auto-generated method stub
+		if(reader != null)
+			throw new IllegalStateException("get InputStream has been called");
+		if(stream == null)
+			stream = createInputStream();
+		
+		return stream;
 	}
 	
 }
