@@ -85,7 +85,7 @@ public class HttpRequest implements HttpServletRequest{
 	}
 	
 	protected void parseParameters(){
-		if(parsed)//¶ÔÏóµÄ¹²Ïí±äÁ¿
+		if(parsed)//ï¿½ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			return;
 		ParameterMap results =  parameters;
 		if(results == null)
@@ -97,7 +97,7 @@ public class HttpRequest implements HttpServletRequest{
 		String queryString =  getQueryString();
 		try {
 			RequestUtil.parseParameters(results, queryString, encoding);
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -119,6 +119,7 @@ public class HttpRequest implements HttpServletRequest{
 				ServletInputStream is = getInputStream();
 				
 				while(len < max){
+					//å‘ç¼“å†²åŒºä¸­è¯»å…¥æµæ•°æ®
 					int next = is.read(buf, len, max - len);
 					if(next < 0){
 						break;
