@@ -31,7 +31,7 @@ public class HttpProcessor {
 			request = new HttpRequest(input);
 			
 			response = new HttpResponse(output);
-			response
+			response.
 		}catch(Exception e){
 			
 		}
