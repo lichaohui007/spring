@@ -156,6 +156,143 @@ public class SocketInputStream extends InputStream{
 		requestLine.protocolEnd = readCount;
 	}
 	
+	public void readHeader(HttpHeader header) throws IOException{
+		if(header.nameEnd != 0)
+			header.recycle();
+		int chr = read();
+		
+		//查找空行
+		if((chr == CR) || (chr == LF)){
+			if(chr == CR)
+				read();
+			header.nameEnd = 0;
+			header.valueEnd = 0;
+			return;
+		}else{
+			pos--;
+		}
+		
+		//读取header的name
+		int maxRead = header.name.length;
+		int readStart = pos;
+		int readCount = 0;
+		
+		boolean colon = false;
+		
+		if(!colon){
+			if(readCount >= maxRead){
+				if((2 * maxRead) <= HttpHeader.MAX_NAME_SIZE){
+					char[] newBuffer = new char[2 * maxRead];
+					System.arraycopy(header.name, 0, newBuffer, 0, maxRead);
+					header.name = newBuffer;
+					maxRead = header.name.length;
+				}else{
+					throw new IOException(sm.getString("requestStream.readline.toolong"));
+				}
+			}
+			if(pos >= count){
+				int val = read();
+				if(val == -1){
+					throw new IOException(sm.getString("requestStream.readline.error"));
+				}
+				pos = 0;
+				readStart = 0;
+			}
+			
+			if(buf[pos] == COLON){
+				colon = true;
+			}
+			
+			char val = (char) buf[pos];
+			if((val > 'A' && (val <= 'Z'))){
+				val = (char) (val - LC_OFFSET);
+			}
+			
+			header.name[readCount] = val;
+			readCount++;
+			pos++;
+		}
+		
+		header.nameEnd = readCount - 1;
+		readStart = pos;
+		readCount = 0;
+		
+		int crPos = -2;
+		
+		boolean eol = false;
+		boolean validLine = true;
+		
+		while(validLine){
+			boolean space = true;
+			while(space){
+				if(pos >= count){
+					int val = read();
+					if(val == -1)
+						throw new IOException(sm.getString("requestStream.readline.errot"));
+					pos = 0;
+					readStart = 0;
+				}
+				if((buf[pos] == SP) || (buf[pos] == HT)){
+					pos++;
+				}else{
+					space = false;
+				}
+			}//while(space)
+			while(!eol){
+				if(readCount >= maxRead){
+					if((2 * maxRead <= HttpHeader.MAX_VALUE_SIZE)){
+						char[] newBuffer = new char[2 * maxRead];
+						System.arraycopy(header.value, 0, newBuffer, 0, maxRead);
+						header.value = newBuffer;
+						maxRead = header.value.length;
+					}else{
+						throw new IOException(sm.getString("request.readline.toolong"));
+					}
+				}
+				
+				if(pos >= count){
+					int val = read();
+					if(val == -1)
+						throw new IOException(sm.getString("request.readline.error"));
+					pos = 0;
+					readStart = 0;
+				}
+				
+				if(buf[pos] == CR){
+					
+				}else if(buf[pos] == LF){
+					eol = true;
+				}else{
+					int ch = buf[pos] & 0xff;
+					header.value[readCount] = (char) ch;
+					readCount++;
+				}
+				pos++;
+			}
+			int nextChr = read();
+			if((nextChr != SP) && (nextChr != HT)){
+				pos--;
+				validLine = false;
+			}else{
+				eol = false;
+				if(readCount >= maxRead){
+					if((2 * maxRead) <= HttpHeader.MAX_VALUE_SIZE){
+						char[] newBuffer = new char[2 * maxRead];
+						System.arraycopy(header.value, 0, newBuffer, 0, maxRead);
+						header.value = newBuffer;
+						maxRead = header.value.length;
+					}else{
+						throw new IOException(sm.getString("requestStream.readline.toolong"));
+					}
+				}//if(readCount >= maxRead)
+				header.value[readCount] = ' ';
+				readCount++;
+			}
+		}//while(validLine)
+		header.valueEnd = readCount;
+		
+	}
+	
 	@Override
 	public int read() throws IOException {
 		// TODO Auto-generated method stub
@@ -164,6 +301,7 @@ public class SocketInputStream extends InputStream{
 			if(pos >= count)
 				return -1;
 		}
+		//返回当前的字节值
 		return buf[pos++] & 0xff;
 	}
 
@@ -172,6 +310,7 @@ public class SocketInputStream extends InputStream{
 		count = 0;
 		int nRead = is.read(buf, 0, buf.length);//返回实际读取的字节数
 		if(nRead > 0){
+			//返回读取的字节数
 			count = nRead;
 		}
 			
