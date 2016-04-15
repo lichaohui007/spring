@@ -212,7 +212,7 @@ public class HttpRequest implements HttpServletRequest{
 		this.requestedSessionCookie = flag;
 	}
 	
-	public void serRequestedSessionId(String requestedSessionId){
+	public void setRequestedSessionId(String requestedSessionId){
 		this.requestedSessionId = requestedSessionId;
 	}
 	

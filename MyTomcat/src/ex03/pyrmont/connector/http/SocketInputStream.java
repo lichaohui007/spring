@@ -308,6 +308,7 @@ public class SocketInputStream extends InputStream{
 	protected void fill() throws IOException{
 		pos = 0;
 		count = 0;
+		//将流中的数据读到buffer中
 		int nRead = is.read(buf, 0, buf.length);//返回实际读取的字节数
 		if(nRead > 0){
 			//返回读取的字节数
