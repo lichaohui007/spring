@@ -119,7 +119,7 @@ public class HttpRequest implements HttpServletRequest{
 				ServletInputStream is = getInputStream();
 				
 				while(len < max){
-					//向缓冲区中读入流数据
+					//向缓冲区中读入流数据  返回每次读取的字节长度
 					int next = is.read(buf, len, max - len);
 					if(next < 0){
 						break;

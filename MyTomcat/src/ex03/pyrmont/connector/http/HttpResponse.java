@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -16,6 +17,9 @@ import java.util.Locale;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+
+import ex03.pyrmont.connector.ResponseStream;
+import ex03.pyrmont.connector.ResponseWriter;
 
 public class HttpResponse implements HttpServletResponse{
 
@@ -283,7 +287,13 @@ public class HttpResponse implements HttpServletResponse{
 	@Override
 	public void flushBuffer() throws IOException {
 		// TODO Auto-generated method stub
-		
+		if(bufferCount > 0){
+			try{
+				output.write(buffer, 0, bufferCount);
+			}finally{
+				bufferCount = 0;
+			}
+		}
 	}
 
 	@Override
@@ -295,7 +305,10 @@ public class HttpResponse implements HttpServletResponse{
 	@Override
 	public String getCharacterEncoding() {
 		// TODO Auto-generated method stub
-		return null;
+		if(encoding == null)
+			return ("ISO-8859-1");
+		else
+		return encoding;
 	}
 
 	@Override
@@ -313,13 +326,18 @@ public class HttpResponse implements HttpServletResponse{
 	@Override
 	public PrintWriter getWriter() throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		ResponseStream newStream = new ResponseStream(this);
+		newStream.setCommit(false);
+		OutputStreamWriter osr = new OutputStreamWriter(newStream, getCharacterEncoding());
+		writer = new ResponseWriter(osr);
+		
+		return writer;
 	}
 
 	@Override
 	public boolean isCommitted() {
 		// TODO Auto-generated method stub
-		return false;
+		return (committed);
 	}
 
 	@Override
@@ -340,16 +358,14 @@ public class HttpResponse implements HttpServletResponse{
 		
 	}
 
-	@Override
-	public void setCharacterEncoding(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	@Override
-	public void setContentLength(int arg0) {
+	public void setContentLength(int length) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		this.contentLength = length;
 	}
 
 	@Override
@@ -359,9 +375,20 @@ public class HttpResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public void setLocale(Locale arg0) {
+	public void setLocale(Locale locale) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		String language = locale.getLanguage();
+		if((language != null) && (language.length() > 0)){
+			String country = locale.getCountry();
+			StringBuffer value = new StringBuffer(language);
+			if((country != null) && (country.length() > 0)){
+				value.append("-");
+				value.append(country);
+			}
+			setHeader("Content-Language", value.toString());
+		}
 	}
 
 	@Override
@@ -377,25 +404,42 @@ public class HttpResponse implements HttpServletResponse{
 	@Override
 	public void addDateHeader(String name, long value) {
 		// TODO Auto-generated method stub
-		----------
-	}
-
-	@Override
-	public void addHeader(String arg0, String arg1) {
-		// TODO Auto-generated method stub
 		
+		if(isCommitted())
+			return;
+		addHeader(name, format.format(new Date(value)));
 	}
 
 	@Override
-	public void addIntHeader(String arg0, int arg1) {
+	public void addHeader(String name, String value) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		synchronized (headers) {
+			ArrayList values = (ArrayList) headers.get(name);
+			if(values == null){
+				values = new ArrayList();
+				headers.put(name, values);
+			}
+			values.add(value);
+		}
 	}
 
 	@Override
-	public boolean containsHeader(String arg0) {
+	public void addIntHeader(String name, int value) {
 		// TODO Auto-generated method stub
-		return false;
+		if(isCommitted())
+			return;
+		addHeader(name, "" + value);
+	}
+
+	@Override
+	public boolean containsHeader(String name) {
+		// TODO Auto-generated method stub
+		synchronized (headers) {
+			return (headers.get(name) != null);
+		}
+		//return false;
 	}
 
 	@Override
@@ -405,46 +449,23 @@ public class HttpResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public String encodeRedirectUrl(String arg0) {
+	public String encodeRedirectUrl(String url) {
+		// TODO Auto-generated method stub
+		return encodeRedirectURL(url);
+	}
+
+	@Override
+	public String encodeURL(String url) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String encodeURL(String arg0) {
+	public String encodeUrl(String url) {
 		// TODO Auto-generated method stub
-		return null;
+		return encodeURL(url);
 	}
 
-	@Override
-	public String encodeUrl(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getHeader(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<String> getHeaderNames() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<String> getHeaders(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getStatus() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	@Override
 	public void sendError(int arg0) throws IOException {
@@ -465,15 +486,36 @@ public class HttpResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public void setDateHeader(String arg0, long arg1) {
+	public void setDateHeader(String name, long value) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		setHeader(name, format.format(value));
 	}
 
 	@Override
-	public void setHeader(String arg0, String arg1) {
+	public void setHeader(String name, String value) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		ArrayList values = new ArrayList();
+		values.add(value);
+		synchronized (headers) {
+			headers.put(name, values);
+		}
+		String match = name.toLowerCase();
+		if(match.equals("content-length")){
+			int contentLength = -1;
+			try{
+				contentLength = Integer.parseInt(value);
+			}catch(Exception e){
+				;
+			}
+			if(contentLength >= 0)
+				setContentLength(contentLength);
+		}else if(match.equals("content-type")){
+			setContentType(value);
+		}
 	}
 
 	@Override

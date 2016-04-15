@@ -5,13 +5,14 @@ import java.io.InputStream;
 
 import javax.servlet.ServletInputStream;
 
-//import org.apache.catalina.tribes.util.StringManager;
 
 
 
 
 
-import org.apache.catalina.util.StringManager;
+
+
+import org.apache.tomcat.util.res.StringManager;
 
 import ex03.pyrmont.connector.http.Constants;
 import ex03.pyrmont.connector.http.HttpRequest;

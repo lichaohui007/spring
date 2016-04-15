@@ -39,8 +39,14 @@ public class HttpConnector implements Runnable{
 				e.printStackTrace();
 				continue;
 			}
-			//Http
+			HttpProcessor processor = new HttpProcessor(this);
+			processor.process(socket);
 		}
 	}
 
+	
+	public void start(){
+		Thread thread = new Thread(this);
+		thread.start();
+	}
 }
