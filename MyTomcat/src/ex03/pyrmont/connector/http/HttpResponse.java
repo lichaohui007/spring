@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -20,42 +19,29 @@ import javax.servlet.http.HttpServletResponse;
 public class HttpResponse implements HttpServletResponse{
 
 	private static final int BUFFER_SIZE = 1024;
-	
 	HttpRequest request;
-	
 	OutputStream output;
-	
 	PrintWriter writer;
-	
 	protected byte[] buffer = new byte[BUFFER_SIZE];
-	
 	protected int bufferCount = 0;
-	
 	protected boolean committed = false;
-	
 	protected int contentCount = 0;
-	
 	protected int contentLength = -1;
-	
 	protected String contentType = null;
-	
 	protected String encoding = null;
-	
 	protected ArrayList cookies = new ArrayList();
-	
 	protected HashMap headers = new HashMap();
-	
 	protected final SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-	
-	protected String message = getStatusMessage(HttpServletResponse.SC_OK);
-			
+
+	protected String message = getStatusMessage(HttpServletResponse.SC_OK);	
+
 	protected int status = HttpServletResponse.SC_OK;
 	
 	public HttpResponse(OutputStream output) {
 		// TODO Auto-generated constructor stub
 		this.output = output;
 	}
-	
+	//灏唕esponse鍜宧eaders鏀惧叆鍒拌緭鍑烘祦涓�
 	public void finishResponse(){
 		if(writer != null){
 			writer.flush();
@@ -178,12 +164,14 @@ public class HttpResponse implements HttpServletResponse{
 			return;
 		OutputStreamWriter osr = null;
 		try{
-			osr = new OutputStreamWriter(getOutputStream());
+
+			osr = new OutputStreamWriter(getStream(), getCharacterEncoding());
 		}catch(Exception e){
 			osr = new OutputStreamWriter(getStream());
 		}
-		
 		final PrintWriter outputWriter = new PrintWriter(osr);
+		//鍝嶅墠娈靛搷搴旂姸鎬�
+
 		outputWriter.print(this.getProtocol());
 		outputWriter.print(" ");
 		outputWriter.print(status);
@@ -194,13 +182,14 @@ public class HttpResponse implements HttpServletResponse{
 		outputWriter.print("\r\n");
 		if(getContentType() != null){
 			outputWriter.print("Content-Type: " + getContentType() + "\r\n");
-			
+
 		}
+		
 		if(getContentLength() >= 0){
 			outputWriter.print("Content-Length: " + getContentLength() + "\r\n");
-			
 		}
-		//����map+list
+		//閬嶅巻headers  map+ list
+
 		synchronized (headers) {
 			Iterator names = headers.keySet().iterator();
 			while(names.hasNext()){
@@ -212,7 +201,9 @@ public class HttpResponse implements HttpServletResponse{
 					outputWriter.print(name);
 					outputWriter.print(": ");
 					outputWriter.print(value);
-					outputWriter.print("\n\r");
+
+					outputWriter.print("\r\n");
+
 				}
 			}
 		}
@@ -221,17 +212,24 @@ public class HttpResponse implements HttpServletResponse{
 			Iterator items = cookies.iterator();
 			while(items.hasNext()){
 				Cookie cookie = (Cookie) items.next();
-				//outputWriter.print(CookieTools);
+
+				outputWriter.print(cookie.getName());
+				outputWriter.print(": ");
+				outputWriter.print(cookie.getValue());
+				outputWriter.print("\r\n");
 			}
 		}
 		
-		outputWriter.print("\n\r");
+		outputWriter.print("\r\n");
+
 		outputWriter.flush();
 		committed = true;
 	}
 	
 	public void setRequest(HttpRequest request){
-		this.request =	request;
+
+		this.request = request;
+
 	}
 	
 	public void sendStaticResource() throws IOException{
@@ -239,16 +237,24 @@ public class HttpResponse implements HttpServletResponse{
 		FileInputStream fis = null;
 		try{
 			File file = new File(Constants.WEB_ROOT, request.getRequestURI());
-			//�������뵽buffer��
-			int ch = fis.read(bytes, 0, BUFFER_SIZE);
+
+			//鐢熸垚闈欐�璧勬簮娴�
+			fis = new FileInputStream(file);
+			//灏濊瘯鍚慴uffer涓粠0寮�鏉ュ姞杞絙uffersize鐨勫瓧鑺�
+			int ch = fis.read(bytes, 0 , BUFFER_SIZE);
 			while(ch != -1){
-				//��������������д���������
+				//buffer鍚戣緭鍑烘祦涓啓鏁版嵁  buffer灏濊瘯灏哻h涓瓧鑺傚啓鍏ュ埌娴佷腑
 				output.write(bytes, 0, ch);
-				ch = fis.read(bytes, 0, ch);
+				ch = fis.read(bytes, 0, BUFFER_SIZE);
 			}
 		}catch(Exception e){
-			String errorMessage = "HTTP/1.1 File Not Found \r\n Content-Type: text/html \r\n Content-Length: 23 \r\n";
-			output.write(errorMessage.getBytes());;
+			 String errorMessage = "HTTP/1.1 404 File Not Found\r\n" +
+				        "Content-Type: text/html\r\n" +
+				        "Content-Length: 23\r\n" +
+				        "\r\n" +
+				        "<h1>File Not Found</h1>";
+			 output.write(errorMessage.getBytes());
+
 		}finally{
 			if(fis != null)
 				fis.close();
@@ -258,19 +264,37 @@ public class HttpResponse implements HttpServletResponse{
 	public void write(int b) throws IOException{
 		if(bufferCount >= buffer.length)
 			flushBuffer();
-		buffer[bufferCount++] = (byte)b;
+
+		buffer[bufferCount++] = (byte) b;
+
 		contentCount++;
 	}
 	
 	public void write(byte[] b) throws IOException{
-		wri
+
+		write(b, 0, b.length);
 	}
 	
-	public void write(byte[] b, int off, int len) throws IOException{
+	public void write(byte[]b, int off, int len) throws IOException{
 		if(len == 0)
 			return;
-		if(len <= buffer.length - bufferCount){
-			System.arraycopy(b, off, buffer, bufferCount, arg4);
+		if(len <= (buffer.length - bufferCount)){
+			System.arraycopy(b, off, buffer, bufferCount, len);
+			bufferCount  += len;
+			contentCount += len;
+			return;
+		}
+		
+		flushBuffer();
+		int iterations = len / buffer.length;
+		int leftoverStart = iterations * buffer.length;
+		int leftoverLen = len - leftoverStart;
+		//姣忔鍚戞祦涓啓鍏uffer.length涓瓧鑺�
+		for(int i = 0; i < iterations; i++){
+			write(b, off + (i * buffer.length), buffer.length);
+			if(leftoverLen > 0)
+				write(b, off + leftoverStart, leftoverLen);
+
 		}
 	}
 	@Override
@@ -354,13 +378,17 @@ public class HttpResponse implements HttpServletResponse{
 	}
 
 	@Override
-	public void addCookie(Cookie arg0) {
+	public void addCookie(Cookie cookie) {
 		// TODO Auto-generated method stub
-		
+		if(isCommitted())
+			return;
+		synchronized (cookies) {
+			cookies.add(cookie);
+		}
 	}
 
 	@Override
-	public void addDateHeader(String arg0, long arg1) {
+	public void addDateHeader(String name, long value) {
 		// TODO Auto-generated method stub
 		
 	}
