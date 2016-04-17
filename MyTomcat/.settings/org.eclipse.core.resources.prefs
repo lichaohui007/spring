@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
+encoding//src/ex03/pyrmont/connector/http/HttpProcessor.java=UTF-8
 encoding//src/ex03/pyrmont/connector/http/HttpResponse.java=UTF-8
+encoding//src/ex03/pyrmont/connector/http/SocketInputStream.java=UTF-8

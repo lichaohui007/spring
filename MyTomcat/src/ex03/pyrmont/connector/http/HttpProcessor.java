@@ -9,6 +9,9 @@ import javax.servlet.ServletException;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.tomcat.util.res.StringManager;
 
+import ex03.pyrmont.ServletProcessor;
+import ex03.pyrmont.StaticResourcePrecessor;
+
 public class HttpProcessor {
 
 	private HttpConnector connector = null;
@@ -30,7 +33,7 @@ public class HttpProcessor {
 		OutputStream output = null;
 		
 		try{
-			//获取socket	输入流
+			//鑾峰彇socket	杈撳叆娴�
 			input = new SocketInputStream(socket.getInputStream(), 2048);
 			output = socket.getOutputStream();
 			request = new HttpRequest(input);
@@ -39,8 +42,18 @@ public class HttpProcessor {
 			response.setRequest(request);
 			
 			response.setHeader("Server", "Pyrmont Servlet Container");
+			parseRequest(input, output);
+			parseHeaders(input);
 			
+			if(request.getRequestURI().startsWith("/servlet")){
+				ServletProcessor processor = new ServletProcessor();
+				processor.process(request, response);
+			}else{
+				StaticResourcePrecessor processor =  new StaticResourcePrecessor();
+				processor.process(request, response);
+			}
 			
+			socket.close();
 		}catch(Exception e){
 			
 		}
@@ -97,11 +110,11 @@ public class HttpProcessor {
 			uri = new String(requestLine.uri, 0, requestLine.uriEnd);
 		}
 		
-		//判断是否是一个绝对地址的url
+		//鍒ゆ柇鏄惁鏄竴涓粷瀵瑰湴鍧�殑url
 		if(!uri.startsWith("/")){
 			int pos = uri.indexOf("://");
-			if(pos != -1){//证明是绝对地址
-				pos = uri.indexOf("/", pos + 3);//找到http://后的第一个/的位置
+			if(pos != -1){//璇佹槑鏄粷瀵瑰湴鍧�
+				pos = uri.indexOf("/", pos + 3);//鎵惧埌http://鍚庣殑绗竴涓�鐨勪綅缃�
 				if(pos == -1){
 					uri = "";
 				}else{
@@ -111,21 +124,21 @@ public class HttpProcessor {
 		}
 		
 		String match = ";jsessionid";
-		int semicolon = uri.indexOf(match);//找到jsessionid的位置
+		int semicolon = uri.indexOf(match);//鎵惧埌jsessionid鐨勪綅缃�
 		if(semicolon >= 0){
-			//从jsessionid开始向后截取
+			//浠巎sessionid寮�鍚戝悗鎴彇
 			String rest = uri.substring(semicolon + match.length());
-			//在后面的uri中找到第一个；的位置
+			//鍦ㄥ悗闈㈢殑uri涓壘鍒扮涓�釜锛涚殑浣嶇疆
 			int semicolon2 = rest.indexOf(";");
 			if(semicolon2 > 0){
 				request.setRequestedSessionId(rest.substring(0, semicolon2));
 				rest = rest.substring(semicolon2);
-			}else{//不存在；
+			}else{//涓嶅瓨鍦紱
 				request.setRequestedSessionId(rest);
 				rest = "";
 			}
 			request.setRequestedSessionURL(true);
-			uri = uri.substring(0, semicolon) + rest;//在uri中过滤掉jsessionid
+			uri = uri.substring(0, semicolon) + rest;//鍦╱ri涓繃婊ゆ帀jsessionid
 		}else{
 			request.setRequestedSessionURL(false);
 			request.setRequestedSessionId(null);
