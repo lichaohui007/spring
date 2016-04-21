@@ -1,5 +1,5 @@
 package ex05.pyrmont.core;
 
-public class SimpleContextMapper implements Mapper{
+public class SimpleContextMapper{
 
 }
