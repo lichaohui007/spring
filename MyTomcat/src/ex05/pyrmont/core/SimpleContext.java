@@ -55,6 +55,15 @@ public class SimpleContext implements Context, Pipeline{
 
 	protected HashMap children = new HashMap();
 	protected Loader loader = null;
+	protected SimplePipeline pipeline = new SimplePipeline(this);
+	protected HashMap mapper = null;
+	protected Mapper mappers = null;
+	protected Container parent = null;
+	
+	public SimpleContext() {
+		// TODO Auto-generated constructor stub
+		pipeline.setBasic();
+	}
 	@Override
 	public String getInfo() {
 		// TODO Auto-generated method stub
