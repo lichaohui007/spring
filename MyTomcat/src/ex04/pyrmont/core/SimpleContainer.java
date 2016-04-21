@@ -11,6 +11,7 @@ import org.apache.catalina.Cluster;
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Loader;
+import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Realm;
@@ -236,6 +237,26 @@ public class SimpleContainer implements Container{
 	public AccessLog getAccessLog() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Logger getLogger() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setLogger(Logger logger) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void invoke(org.apache.catalina.Request request,
+			org.apache.catalina.Response response) throws IOException,
+			ServletException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

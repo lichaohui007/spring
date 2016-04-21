@@ -1,9 +1,14 @@
 package ex05.pyrmont.core;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
 import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Valve;
+import org.apache.catalina.ValveContext;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 
@@ -18,33 +23,32 @@ public class SimplePipeline implements Pipeline{
 		// TODO Auto-generated constructor stub
 	}
 	
-	@Override
-	public void addValve(Valve valve) {
-		// TODO Auto-generated method stub
-		if(valve instanceof Contained)
-			((Contained)valve).setContainer(this.container);
-		synchronized(valves){
-			Valve[] results = new Valve[valves.length + 1];
-			System.arraycopy(valves, 0, results, 0, valves.length);
-			results[valves.length] = valve;//给results赋值
-			valves = results;
+	protected class SimplePipelineValveContext implements ValveContext{
+
+		@Override
+		public String getInfo() {
+			// TODO Auto-generated method stub
+			return null;
 		}
+
+		@Override
+		public void invokeNext(org.apache.catalina.Request arg0,
+				org.apache.catalina.Response arg1) throws IOException,
+				ServletException {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+
+	@Override
+	public void addValve(Valve arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public Valve getBasic() {
-		// TODO Auto-generated method stub
-		return basic;
-	}
-
-	@Override
-	public Container getContainer() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Valve getFirst() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -52,16 +56,15 @@ public class SimplePipeline implements Pipeline{
 	@Override
 	public Valve[] getValves() {
 		// TODO Auto-generated method stub
-		return valves;
+		return null;
 	}
 
-	public void invoke(Request request, Response response){
-		
-	}
 	@Override
-	public boolean isAsyncSupported() {
+	public void invoke(org.apache.catalina.Request arg0,
+			org.apache.catalina.Response arg1) throws IOException,
+			ServletException {
 		// TODO Auto-generated method stub
-		return false;
+		
 	}
 
 	@Override
@@ -71,21 +74,8 @@ public class SimplePipeline implements Pipeline{
 	}
 
 	@Override
-	public void setBasic(Valve valve) {
+	public void setBasic(Valve arg0) {
 		// TODO Auto-generated method stub
-		this.basic = valve;
-		 //((Contained) valve).setContainer(container);
-		((Contained)valve).setContainer(container);
-	}
-
-	@Override
-	public void setContainer(Container container) {
-		// TODO Auto-generated method stub
-		this.container = container;
-	}
-
-	
-	protected class SimplePipelineValveContext implements ValveContext{
 		
 	}
 }
