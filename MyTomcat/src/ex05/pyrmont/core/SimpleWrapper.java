@@ -15,6 +15,7 @@ import org.apache.catalina.InstanceListener;
 import org.apache.catalina.Loader;
 import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
+import org.apache.catalina.Mapper;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Request;
@@ -24,150 +25,18 @@ import org.apache.catalina.Wrapper;
 
 public class SimpleWrapper implements Wrapper, Pipeline{
 
-	@Override
-	public String getInfo() {
-		// TODO Auto-generated method stub
-		return null;
+	private Servlet instance = null;
+	private String servletClass;
+	private Loader loader;
+	private String name;
+	private SimplePipeline pipeline =  new SimplePipeline(this);
+	protected Container parent = null;
+	
+	public SimpleWrapper() {
+		// TODO Auto-generated constructor stub
+		pipeline.setBasic(new SimpleWrapperValve());
 	}
-
-	@Override
-	public Loader getLoader() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setLoader(Loader loader) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Logger getLogger() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setLogger(Logger logger) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Manager getManager() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setManager(Manager manager) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Object getMappingObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Pipeline getPipeline() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Cluster getCluster() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setCluster(Cluster cluster) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getBackgroundProcessorDelay() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setBackgroundProcessorDelay(int delay) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setName(String name) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Container getParent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParent(Container container) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ClassLoader getParentClassLoader() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParentClassLoader(ClassLoader parent) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Realm getRealm() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setRealm(Realm realm) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public DirContext getResources() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setResources(DirContext resources) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void backgroundProcess() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	@Override
 	public void addChild(Container child) {
 		// TODO Auto-generated method stub
@@ -176,6 +45,12 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 
 	@Override
 	public void addContainerListener(ContainerListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addMapper(Mapper arg0) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -205,10 +80,94 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 	}
 
 	@Override
+	public Mapper findMapper(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Mapper[] findMappers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Loader getLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setLoader(Loader loader) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Logger getLogger() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Manager getManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Cluster getCluster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Container getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ClassLoader getParentClassLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Realm getRealm() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DirContext getResources() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public void invoke(Request request, Response response) throws IOException,
 			ServletException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Container map(Request arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -219,6 +178,60 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 
 	@Override
 	public void removeContainerListener(ContainerListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeMapper(Mapper arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLogger(Logger logger) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setManager(Manager manager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCluster(Cluster cluster) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setName(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setParent(Container container) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setParentClassLoader(ClassLoader parent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRealm(Realm realm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setResources(DirContext resources) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -338,12 +351,6 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 	}
 
 	@Override
-	public void addMapping(String mapping) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void addSecurityReference(String name, String link) {
 		// TODO Auto-generated method stub
 		
@@ -374,12 +381,6 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 	}
 
 	@Override
-	public String[] findMappings() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String findSecurityReference(String name) {
 		// TODO Auto-generated method stub
 		return null;
@@ -389,12 +390,6 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 	public String[] findSecurityReferences() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void incrementErrorCount() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -416,12 +411,6 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 	}
 
 	@Override
-	public void removeMapping(String mapping) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void removeSecurityReference(String name) {
 		// TODO Auto-generated method stub
 		
@@ -438,5 +427,7 @@ public class SimpleWrapper implements Wrapper, Pipeline{
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 
 }

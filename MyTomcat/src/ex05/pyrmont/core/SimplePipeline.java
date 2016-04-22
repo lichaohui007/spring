@@ -11,6 +11,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.ValveContext;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.startup.SetContextPropertiesRule;
 
 public class SimplePipeline implements Pipeline{
 
@@ -25,6 +26,8 @@ public class SimplePipeline implements Pipeline{
 	
 	protected class SimplePipelineValveContext implements ValveContext{
 
+		protected int stage = 0;
+		
 		@Override
 		public String getInfo() {
 			// TODO Auto-generated method stub
@@ -32,50 +35,70 @@ public class SimplePipeline implements Pipeline{
 		}
 
 		@Override
-		public void invokeNext(org.apache.catalina.Request arg0,
-				org.apache.catalina.Response arg1) throws IOException,
+		public void invokeNext(org.apache.catalina.Request request,
+				org.apache.catalina.Response response) throws IOException,
 				ServletException {
 			// TODO Auto-generated method stub
+			int subscript =  stage;
+			stage = stage + 1;
 			
+			if(subscript < valves.length){
+				valves[subscript].invoke(request, response, this);
+			}else if((subscript ==  valves.length) && (basic != null)){
+				basic.invoke(request, response, this);
+			}else{
+				throw new ServletException("No valve");
+			}
 		}
 		
 	}
 
 	@Override
-	public void addValve(Valve arg0) {
+	public void addValve(Valve valve) {
 		// TODO Auto-generated method stub
+		if(valve instanceof Contained)
+			((Contained)valve).setContainer(this.container);
 		
+		synchronized (valves) {
+			Valve[] results = new Valve[valves.length + 1];
+			System.arraycopy(valves, 0, results, 0, valves.length);
+			results[valves.length] = valve;
+			valves = results;
+		}
 	}
 
 	@Override
 	public Valve getBasic() {
 		// TODO Auto-generated method stub
-		return null;
+		return basic;
 	}
 
 	@Override
 	public Valve[] getValves() {
 		// TODO Auto-generated method stub
-		return null;
+		return valves;
 	}
 
 	@Override
-	public void invoke(org.apache.catalina.Request arg0,
-			org.apache.catalina.Response arg1) throws IOException,
+	public void invoke(org.apache.catalina.Request request,
+			org.apache.catalina.Response response) throws IOException,
 			ServletException {
 		// TODO Auto-generated method stub
-		
+		(new SimplePipelineValveContext()).invokeNext(request, response);
 	}
 
 	@Override
-	public void removeValve(Valve arg0) {
+	public void removeValve(Valve valve) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setBasic(Valve arg0) {
+	public void setBasic(Valve valve) {
 		// TODO Auto-generated method stub
-		
+		this.basic = valve;
+		((Contained)valve).setContainer(container);
 	}
+	
+	
 }
