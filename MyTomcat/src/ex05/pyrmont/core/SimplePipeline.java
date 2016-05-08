@@ -1,5 +1,9 @@
 package ex05.pyrmont.core;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
 import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
 import org.apache.catalina.Pipeline;
@@ -85,7 +89,24 @@ public class SimplePipeline implements Pipeline{
 	}
 
 	
-	protected class SimplePipelineValveContext implements ValveContext{
+	protected class SimplePipelineValveContext {
+		protected int stage = 0;
 		
+		public String getInfo(){
+			return null;
+		}
+		
+		public void invokeNext(Request request,Response response) throws IOException, ServletException{
+			int subscript = stage;
+			stage = stage + 1;
+			if(subscript < valves.length){
+				valves[subscript].invoke(request, response);
+			}else if(subscript == valves.length && (basic != null)){
+				basic.invoke(request, response);
+				
+			}else{
+				throw new ServletException("No valve");
+			}
+		}
 	}
 }
