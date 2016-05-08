@@ -25,6 +25,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Loader;
+import org.apache.catalina.Logger;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Realm;
@@ -34,6 +35,11 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.ApplicationServletRegistration;
 import org.apache.catalina.deploy.ApplicationParameter;
+import org.apache.catalina.deploy.ContextEjb;
+import org.apache.catalina.deploy.ContextEnvironment;
+import org.apache.catalina.deploy.ContextLocalEjb;
+import org.apache.catalina.deploy.ContextResource;
+import org.apache.catalina.deploy.ContextResourceLink;
 import org.apache.catalina.deploy.ErrorPage;
 import org.apache.catalina.deploy.FilterDef;
 import org.apache.catalina.deploy.FilterMap;
@@ -49,33 +55,91 @@ public class SimpleContext implements Context, Pipeline{
 
 	protected HashMap children = new HashMap();
 	protected Loader loader = null;
-	protected 
+	protected SimplePipeline pipeline = new SimplePipeline(this);
+	protected HashMap servletMappings = new HashMap();
+	protected Mapper mapper = null;
+	protected HashMap mappers = new HashMap();
+	protected Container parent = null;
+	
+	public SimpleContext() {
+		// TODO Auto-generated constructor stub
+		pipeline.setBasic(new SimpleContextValve());
+	}
+
 	@Override
-	public void addChild(Container arg0) {
+	public void setLogger(Logger logger) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addContainerListener(ContainerListener arg0) {
+	public void setName(String name) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addPropertyChangeListener(PropertyChangeListener arg0) {
+	public Container getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ClassLoader getParentClassLoader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParentClassLoader(ClassLoader parent) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void backgroundProcess() {
+	public Realm getRealm() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DirContext getResources() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setResources(DirContext resources) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public Container findChild(String arg0) {
+	public void addChild(Container child) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addContainerListener(ContainerListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addMapper(org.apache.catalina.Mapper arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Container findChild(String name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -93,25 +157,13 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public void fireContainerEvent(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public AccessLog getAccessLog() {
+	public org.apache.catalina.Mapper findMapper(String arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public int getBackgroundProcessorDelay() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public Cluster getCluster() {
+	public org.apache.catalina.Mapper[] findMappers() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -129,7 +181,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public Log getLogger() {
+	public Logger getLogger() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -141,7 +193,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public Object getMappingObject() {
+	public Cluster getCluster() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -153,182 +205,69 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public ObjectName getObjectName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Container getParent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ClassLoader getParentClassLoader() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Pipeline getPipeline() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Realm getRealm() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public DirContext getResources() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void invoke(Request arg0, Response arg1) throws IOException,
+	public void invoke(org.apache.catalina.Request request,
+			org.apache.catalina.Response response) throws IOException,
 			ServletException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void logAccess(Request arg0, Response arg1, long arg2, boolean arg3) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeChild(Container arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeContainerListener(ContainerListener arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setBackgroundProcessorDelay(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setCluster(Cluster arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setLoader(Loader arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setManager(Manager arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setName(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setParent(Container arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setParentClassLoader(ClassLoader arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setRealm(Realm arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setResources(DirContext arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addLifecycleListener(LifecycleListener arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void destroy() throws LifecycleException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public LifecycleListener[] findLifecycleListeners() {
+	public Container map(org.apache.catalina.Request arg0, boolean arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LifecycleState getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getStateName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void init() throws LifecycleException {
+	public void removeChild(Container child) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeLifecycleListener(LifecycleListener arg0) {
+	public void removeContainerListener(ContainerListener listener) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void start() throws LifecycleException {
+	public void removeMapper(org.apache.catalina.Mapper arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void stop() throws LifecycleException {
+	public void setLoader(Loader loader) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addValve(Valve arg0) {
+	public void setManager(Manager manager) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCluster(Cluster cluster) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setParent(Container container) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setRealm(Realm realm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -340,15 +279,15 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public Container getContainer() {
+	public void setBasic(Valve valve) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
-	public Valve getFirst() {
+	public void addValve(Valve valve) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -358,159 +297,403 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public boolean isAsyncSupported() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void removeValve(Valve arg0) {
+	public void removeValve(Valve valve) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setBasic(Valve arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setContainer(Container arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addApplicationListener(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addApplicationParameter(ApplicationParameter arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addConstraint(SecurityConstraint arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addErrorPage(ErrorPage arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addFilterDef(FilterDef arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addFilterMap(FilterMap arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addFilterMapBefore(FilterMap arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addInstanceListener(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addLocaleEncodingMappingParameter(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addMimeMapping(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addParameter(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addResourceJarUrl(URL arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addRoleMapping(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addSecurityRole(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addServletContainerInitializer(
-			ServletContainerInitializer arg0, Set<Class<?>> arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addServletMapping(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addServletMapping(String arg0, String arg1, boolean arg2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Set<String> addServletSecurity(ApplicationServletRegistration arg0,
-			ServletSecurityElement arg1) {
+	public String getPath() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void addWatchedResource(String arg0) {
+	public String getPublicId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean getReloadable() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean getPrivileged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public ServletContext getServletContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getSessionTimeout() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getWrapperClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void reload() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addWelcomeFile(String arg0) {
+	public void removeApplicationListener(String listener) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addWrapperLifecycle(String arg0) {
+	public void removeApplicationParameter(String name) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void addWrapperListener(String arg0) {
+	public void removeConstraint(SecurityConstraint constraint) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeEjb(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeEnvironment(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeErrorPage(ErrorPage errorPage) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeFilterDef(FilterDef filterDef) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeFilterMap(FilterMap filterMap) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeInstanceListener(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeLocalEjb(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeMimeMapping(String extension) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeParameter(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeResource(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeResourceEnvRef(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeResourceLink(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeRoleMapping(String role) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeSecurityRole(String role) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeServletMapping(String pattern) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeTaglib(String uri) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeWelcomeFile(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeWrapperLifecycle(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeWrapperListener(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setApplicationListeners(Object[] arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAvailable(boolean available) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCharsetMapper(CharsetMapper mapper) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setConfigured(boolean configured) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCookies(boolean cookies) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCrossContext(boolean crossContext) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDisplayName(String displayName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDistributable(boolean distributable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDocBase(String docBase) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLoginConfig(LoginConfig config) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setNamingResources(NamingResources namingResources) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPath(String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setPublicId(String publicId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReloadable(boolean reloadable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addApplicationListener(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addApplicationParameter(ApplicationParameter parameter) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addConstraint(SecurityConstraint constraint) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addEjb(ContextEjb ejb) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addEnvironment(ContextEnvironment environment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addErrorPage(ErrorPage errorPage) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addFilterDef(FilterDef filterDef) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addFilterMap(FilterMap filterMap) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addInstanceListener(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addLocalEjb(ContextLocalEjb ejb) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addMimeMapping(String extension, String mimeType) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addParameter(String name, String value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addResource(ContextResource resource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addResourceEnvRef(String name, String type) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addResourceLink(ContextResourceLink resourceLink) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addRoleMapping(String role, String link) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addSecurityRole(String role) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addServletMapping(String pattern, String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addTaglib(String uri, String location) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWelcomeFile(String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWrapperLifecycle(String listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addWrapperListener(String listener) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -540,13 +723,37 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public ErrorPage findErrorPage(int arg0) {
+	public ContextEjb findEjb(String name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ErrorPage findErrorPage(String arg0) {
+	public ContextEjb[] findEjbs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextEnvironment findEnvironment(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextEnvironment[] findEnvironments() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ErrorPage findErrorPage(int errorCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ErrorPage findErrorPage(String exceptionType) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -558,7 +765,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public FilterDef findFilterDef(String arg0) {
+	public FilterDef findFilterDef(String filterName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -582,7 +789,19 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String findMimeMapping(String arg0) {
+	public ContextLocalEjb findLocalEjb(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextLocalEjb[] findLocalEjbs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String findMimeMapping(String extension) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -594,7 +813,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String findParameter(String arg0) {
+	public String findParameter(String name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -606,13 +825,49 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String findRoleMapping(String arg0) {
+	public ContextResource findResource(String name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean findSecurityRole(String arg0) {
+	public String findResourceEnvRef(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String[] findResourceEnvRefs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextResourceLink findResourceLink(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextResourceLink[] findResourceLinks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ContextResource[] findResources() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String findRoleMapping(String role) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean findSecurityRole(String role) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -624,7 +879,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String findServletMapping(String arg0) {
+	public String findServletMapping(String pattern) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -636,7 +891,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String findStatusPage(int arg0) {
+	public String findStatusPage(int status) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -648,13 +903,19 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String[] findWatchedResources() {
+	public String findTaglib(String uri) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean findWelcomeFile(String arg0) {
+	public String[] findTaglibs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean findWelcomeFile(String name) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -678,43 +939,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public boolean fireRequestDestroyEvent(ServletRequest arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean fireRequestInitEvent(ServletRequest arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getAllowCasualMultipartParsing() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String getAltDDName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object[] getApplicationEventListeners() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object[] getApplicationLifecycleListeners() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Authenticator getAuthenticator() {
+	public Object[] getApplicationListeners() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -726,19 +951,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String getBaseName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public CharsetMapper getCharsetMapper() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public URL getConfigFile() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -780,61 +993,7 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public int getEffectiveMajorVersion() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getEffectiveMinorVersion() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public String getEncodedPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getFireRequestListenersOnForwards() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getIgnoreAnnotations() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public JarScanner getJarScanner() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public JspConfigDescriptor getJspConfigDescriptor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getLogEffectiveWebXml() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public LoginConfig getLoginConfig() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Mapper getMapper() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -852,501 +1011,31 @@ public class SimpleContext implements Context, Pipeline{
 	}
 
 	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getPaused() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getPreemptiveAuthentication() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getPrivileged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String getPublicId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getRealPath(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getReloadable() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String getResourceOnlyServlets() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ServletContext getServletContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSessionCookieDomain() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSessionCookieName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSessionCookiePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getSessionCookiePathUsesTrailingSlash() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public int getSessionTimeout() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean getSwallowAbortedUploads() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getSwallowOutput() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getTldNamespaceAware() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getTldValidation() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getUseHttpOnly() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String getWebappVersion() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getWrapperClass() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getXmlNamespaceAware() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getXmlValidation() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isResourceOnlyServlet(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isServlet22() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void reload() {
+	public void setOverride(boolean override) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeApplicationListener(String arg0) {
+	public void setPrivileged(boolean privileged) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeApplicationParameter(String arg0) {
+	public void setSessionTimeout(int timeout) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeConstraint(SecurityConstraint arg0) {
+	public void setWrapperClass(String wrapperClass) {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void removeErrorPage(ErrorPage arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeFilterDef(FilterDef arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeFilterMap(FilterMap arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeInstanceListener(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeMimeMapping(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeParameter(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeRoleMapping(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeSecurityRole(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeServletMapping(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeWatchedResource(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeWelcomeFile(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeWrapperLifecycle(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeWrapperListener(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setAllowCasualMultipartParsing(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setAltDDName(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setApplicationEventListeners(Object[] arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setApplicationLifecycleListeners(Object[] arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setCharsetMapper(CharsetMapper arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setConfigFile(URL arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setConfigured(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setCookies(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setCrossContext(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setDisplayName(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setDistributable(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setDocBase(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setEffectiveMajorVersion(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setEffectiveMinorVersion(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setFireRequestListenersOnForwards(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setIgnoreAnnotations(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setJarScanner(JarScanner arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setLogEffectiveWebXml(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setLoginConfig(LoginConfig arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setNamingResources(NamingResources arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setOverride(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPath(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPreemptiveAuthentication(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPrivileged(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setPublicId(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setReloadable(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setResourceOnlyServlets(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSessionCookieDomain(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSessionCookieName(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSessionCookiePath(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSessionCookiePathUsesTrailingSlash(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSessionTimeout(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSwallowAbortedUploads(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setSwallowOutput(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setTldNamespaceAware(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setTldValidation(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setUseHttpOnly(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setWebappVersion(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setWrapperClass(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setXmlNamespaceAware(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setXmlValidation(boolean arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+	
+	
+	
 
 }

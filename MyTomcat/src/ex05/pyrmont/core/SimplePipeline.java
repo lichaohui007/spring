@@ -1,3 +1,4 @@
+
 package ex05.pyrmont.core;
 
 import java.io.IOException;
@@ -8,8 +9,7 @@ import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Valve;
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
+import org.apache.catalina.ValveContext;
 
 public class SimplePipeline implements Pipeline{
 
@@ -22,15 +22,45 @@ public class SimplePipeline implements Pipeline{
 		// TODO Auto-generated constructor stub
 	}
 	
+	protected class SimplePipelineValveContext implements ValveContext{
+
+		protected int stage = 0;
+		
+		@Override
+		public String getInfo() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void invokeNext(org.apache.catalina.Request request,
+				org.apache.catalina.Response response) throws IOException,
+				ServletException {
+			// TODO Auto-generated method stub
+			int subscript =  stage;
+			stage = stage + 1;
+			
+			if(subscript < valves.length){
+				valves[subscript].invoke(request, response, this);
+			}else if((subscript ==  valves.length) && (basic != null)){
+				basic.invoke(request, response, this);
+			}else{
+				throw new ServletException("No valve");
+			}
+		}
+		
+	}
+
 	@Override
 	public void addValve(Valve valve) {
 		// TODO Auto-generated method stub
 		if(valve instanceof Contained)
 			((Contained)valve).setContainer(this.container);
-		synchronized(valves){
+		
+		synchronized (valves) {
 			Valve[] results = new Valve[valves.length + 1];
 			System.arraycopy(valves, 0, results, 0, valves.length);
-			results[valves.length] = valve;//给results赋值
+			results[valves.length] = valve;
 			valves = results;
 		}
 	}
@@ -42,34 +72,21 @@ public class SimplePipeline implements Pipeline{
 	}
 
 	@Override
-	public Container getContainer() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Valve getFirst() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Valve[] getValves() {
 		// TODO Auto-generated method stub
 		return valves;
 	}
 
-	public void invoke(Request request, Response response){
-		
-	}
 	@Override
-	public boolean isAsyncSupported() {
+	public void invoke(org.apache.catalina.Request request,
+			org.apache.catalina.Response response) throws IOException,
+			ServletException {
 		// TODO Auto-generated method stub
-		return false;
+		(new SimplePipelineValveContext()).invokeNext(request, response);
 	}
 
 	@Override
-	public void removeValve(Valve arg0) {
+	public void removeValve(Valve valve) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -78,35 +95,9 @@ public class SimplePipeline implements Pipeline{
 	public void setBasic(Valve valve) {
 		// TODO Auto-generated method stub
 		this.basic = valve;
-		 //((Contained) valve).setContainer(container);
 		((Contained)valve).setContainer(container);
 	}
-
-	@Override
-	public void setContainer(Container container) {
-		// TODO Auto-generated method stub
-		this.container = container;
-	}
-
 	
-	protected class SimplePipelineValveContext {
-		protected int stage = 0;
-		
-		public String getInfo(){
-			return null;
-		}
-		
-		public void invokeNext(Request request,Response response) throws IOException, ServletException{
-			int subscript = stage;
-			stage = stage + 1;
-			if(subscript < valves.length){
-				valves[subscript].invoke(request, response);
-			}else if(subscript == valves.length && (basic != null)){
-				basic.invoke(request, response);
-				
-			}else{
-				throw new ServletException("No valve");
-			}
-		}
-	}
+	
 }
+
